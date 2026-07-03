@@ -1,0 +1,372 @@
+{
+	"info": {
+		"name": "UrbanStore API",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:3000"
+		},
+		{
+			"key": "token",
+			"value": ""
+		},
+		{
+			"key": "admin_token",
+			"value": ""
+		},
+		{
+			"key": "product_id",
+			"value": "1"
+		},
+		{
+			"key": "order_id",
+			"value": ""
+		}
+	],
+	"item": [
+		{
+			"name": "Auth",
+			"item": [
+				{
+					"name": "Register",
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"name\": \"Budi Santoso\",\n\t\"email\": \"budi@example.com\",\n\t\"password\": \"password123\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/auth/register",
+							"host": ["{{base_url}}"],
+							"path": ["api", "auth", "register"]
+						}
+					}
+				},
+				{
+					"name": "Login",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var json = pm.response.json();",
+									"if (json.success && json.data && json.data.token) {",
+									"    pm.collectionVariables.set('token', json.data.token);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"email\": \"budi@example.com\",\n\t\"password\": \"password123\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/auth/login",
+							"host": ["{{base_url}}"],
+							"path": ["api", "auth", "login"]
+						}
+					}
+				},
+				{
+					"name": "Login Admin",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var json = pm.response.json();",
+									"if (json.success && json.data && json.data.token) {",
+									"    pm.collectionVariables.set('admin_token', json.data.token);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"email\": \"admin@urbanstore.com\",\n\t\"password\": \"admin123\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/auth/login",
+							"host": ["{{base_url}}"],
+							"path": ["api", "auth", "login"]
+						}
+					}
+				},
+				{
+					"name": "Get Profile",
+					"request": {
+						"method": "GET",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{token}}" }
+						],
+						"url": {
+							"raw": "{{base_url}}/api/auth/profile",
+							"host": ["{{base_url}}"],
+							"path": ["api", "auth", "profile"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Products",
+			"item": [
+				{
+					"name": "Get All Products",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/products",
+							"host": ["{{base_url}}"],
+							"path": ["api", "products"]
+						}
+					}
+				},
+				{
+					"name": "Get Products - Search",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/products?search=kaos",
+							"host": ["{{base_url}}"],
+							"path": ["api", "products"],
+							"query": [
+								{ "key": "search", "value": "kaos" }
+							]
+						}
+					}
+				},
+				{
+					"name": "Get Products - Filter Category",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/products?category=Kaos",
+							"host": ["{{base_url}}"],
+							"path": ["api", "products"],
+							"query": [
+								{ "key": "category", "value": "Kaos" }
+							]
+						}
+					}
+				},
+				{
+					"name": "Get Categories",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/products/categories",
+							"host": ["{{base_url}}"],
+							"path": ["api", "products", "categories"]
+						}
+					}
+				},
+				{
+					"name": "Get Product by ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/products/{{product_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["api", "products", "{{product_id}}"]
+						}
+					}
+				},
+				{
+					"name": "Create Product (Admin)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" },
+							{ "key": "Authorization", "value": "Bearer {{admin_token}}" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"name\": \"Kaos Polos Premium\",\n\t\"category\": \"Kaos\",\n\t\"price\": 85000,\n\t\"stock\": 50,\n\t\"weight\": 200,\n\t\"rating\": 4.5,\n\t\"image\": \"https://picsum.photos/400/400\",\n\t\"description\": \"Kaos polos berbahan cotton combed 30s\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/products",
+							"host": ["{{base_url}}"],
+							"path": ["api", "products"]
+						}
+					}
+				},
+				{
+					"name": "Update Product (Admin)",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" },
+							{ "key": "Authorization", "value": "Bearer {{admin_token}}" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"name\": \"Kaos Polos Premium Updated\",\n\t\"category\": \"Kaos\",\n\t\"price\": 90000,\n\t\"stock\": 45,\n\t\"weight\": 200,\n\t\"rating\": 4.7,\n\t\"image\": \"https://picsum.photos/400/400\",\n\t\"description\": \"Kaos polos cotton combed 30s edisi update\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/products/{{product_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["api", "products", "{{product_id}}"]
+						}
+					}
+				},
+				{
+					"name": "Delete Product (Admin)",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{admin_token}}" }
+						],
+						"url": {
+							"raw": "{{base_url}}/api/products/{{product_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["api", "products", "{{product_id}}"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Kota & Ongkir",
+			"item": [
+				{
+					"name": "Get All Kota",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/kota",
+							"host": ["{{base_url}}"],
+							"path": ["api", "kota"]
+						}
+					}
+				},
+				{
+					"name": "Hitung Ongkir",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/kota/ongkir?kota_id=1&berat=1500",
+							"host": ["{{base_url}}"],
+							"path": ["api", "kota", "ongkir"],
+							"query": [
+								{ "key": "kota_id", "value": "1" },
+								{ "key": "berat", "value": "1500" }
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Orders",
+			"item": [
+				{
+					"name": "Create Order (Checkout)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var json = pm.response.json();",
+									"if (json.success && json.data && json.data.orderId) {",
+									"    pm.collectionVariables.set('order_id', json.data.orderId);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" },
+							{ "key": "Authorization", "value": "Bearer {{token}}" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"customerName\": \"Budi Santoso\",\n\t\"address\": \"Jl. Merdeka No. 10, RT 02/RW 03\",\n\t\"phone\": \"081234567890\",\n\t\"kota_id\": 1,\n\t\"kota\": \"Jakarta\",\n\t\"ongkir\": 20000,\n\t\"subtotal\": 170000,\n\t\"totalAmount\": 190000,\n\t\"items\": [\n\t\t{\n\t\t\t\"id\": 1,\n\t\t\t\"name\": \"Kaos Polos Premium\",\n\t\t\t\"image\": \"https://picsum.photos/400/400\",\n\t\t\t\"price\": 85000,\n\t\t\t\"quantity\": 2\n\t\t}\n\t]\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/orders",
+							"host": ["{{base_url}}"],
+							"path": ["api", "orders"]
+						}
+					}
+				},
+				{
+					"name": "Get My Orders",
+					"request": {
+						"method": "GET",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{token}}" }
+						],
+						"url": {
+							"raw": "{{base_url}}/api/orders/my",
+							"host": ["{{base_url}}"],
+							"path": ["api", "orders", "my"]
+						}
+					}
+				},
+				{
+					"name": "Get All Orders (Admin)",
+					"request": {
+						"method": "GET",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{admin_token}}" }
+						],
+						"url": {
+							"raw": "{{base_url}}/api/orders",
+							"host": ["{{base_url}}"],
+							"path": ["api", "orders"]
+						}
+					}
+				},
+				{
+					"name": "Update Order Status (Admin)",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" },
+							{ "key": "Authorization", "value": "Bearer {{admin_token}}" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"status\": \"processing\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/orders/{{order_id}}/status",
+							"host": ["{{base_url}}"],
+							"path": ["api", "orders", "{{order_id}}", "status"]
+						}
+					}
+				}
+			]
+		}
+	]
+}
