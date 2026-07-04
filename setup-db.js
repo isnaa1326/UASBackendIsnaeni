@@ -14,6 +14,12 @@ async function setupDatabase() {
     
     let sqlContent = fs.readFileSync(sqlPath, 'utf8');
     
+    // Bersihkan komentar single-line (-- dan #)
+    sqlContent = sqlContent.replace(/--.*$/gm, '').replace(/#.*$/gm, '');
+
+    // Bersihkan komentar block (/* */)
+    sqlContent = sqlContent.replace(/\/\*[\s\S]*?\*\//g, '');
+
     // Bersihkan query dari CREATE DATABASE dan USE agar berjalan pada database yang sudah disediakan Railway/XAMPP
     sqlContent = sqlContent
       .replace(/DROP DATABASE IF EXISTS[^;]+;/gi, '')
@@ -21,12 +27,10 @@ async function setupDatabase() {
       .replace(/USE [^;]+;/gi, '');
 
     // Split SQL menjadi command-command individu berdasarkan titik koma (;)
-    // Tapi hati-hati agar tidak memecah isi string yang mengandung titik koma.
-    // Metode sederhana yang umum: split dengan ;\r\n atau ;\n
     const queries = sqlContent
-      .split(/;[ \t]*[\r\n]+/g)
+      .split(';')
       .map(q => q.trim())
-      .filter(q => q.length > 0 && !q.startsWith('--'));
+      .filter(q => q.length > 0);
 
     console.log(`📋 Ditemukan ${queries.length} query untuk dieksekusi.`);
 
@@ -35,11 +39,9 @@ async function setupDatabase() {
 
     for (let i = 0; i < queries.length; i++) {
       const query = queries[i];
-      // Lewati komentar penuh
-      if (query.startsWith('--') || query.startsWith('/*')) continue;
-      
       try {
         await db.query(query);
+        console.log(`✅ Berhasil mengeksekusi query ke-${i + 1}/${queries.length}`);
       } catch (err) {
         console.error(`❌ Gagal mengeksekusi query ke-${i + 1}:`);
         console.error(query);
