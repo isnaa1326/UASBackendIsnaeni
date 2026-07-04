@@ -161,3 +161,22 @@ exports.getProfile = async (req, res) => {
     });
   }
 };
+
+// Get semua users (admin)
+exports.getAllUsers = async (req, res) => {
+  try {
+    const [users] = await db.query(
+      'SELECT id, name, email, role, created_at FROM users ORDER BY id ASC'
+    );
+    res.json({
+      success: true,
+      data: users
+    });
+  } catch (error) {
+    console.error('Error get all users:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Terjadi kesalahan server.'
+    });
+  }
+};
