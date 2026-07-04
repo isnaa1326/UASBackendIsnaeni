@@ -53,7 +53,9 @@ async function kirimNotifWA(order) {
 
 // POST buat order baru (checkout)
 exports.createOrder = async (req, res) => {
+  const connection = await db.getConnection();
   try {
+    await connection.beginTransaction();
 
     const userId = req.user.id;
     const {
@@ -70,6 +72,8 @@ exports.createOrder = async (req, res) => {
 
     // Validasi input wajib
     if (!customerName || !address || !phone || !kota_id || !items || items.length === 0) {
+      await connection.rollback();
+      connection.release();
       return res.status(400).json({
         success: false,
         message: 'Data order tidak lengkap.'
@@ -80,7 +84,7 @@ exports.createOrder = async (req, res) => {
     const orderId = 'TRX_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
 
     // Insert ke tabel orders
-    await db.query(
+    await connection.query(
       `INSERT INTO orders
         (id, user_id, customer_name, address, phone, kota_id, kota, ongkir, subtotal, total_amount, status, created_at)
        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'paid', NOW())`,
@@ -89,7 +93,7 @@ exports.createOrder = async (req, res) => {
 
     // Insert detail item ke order_items
     for (const item of items) {
-      await db.query(
+      await connection.query(
         `INSERT INTO order_items (order_id, product_id, product_name, product_image, price, quantity, subtotal)
          VALUES (?, ?, ?, ?, ?, ?, ?)`,
         [
@@ -105,6 +109,7 @@ exports.createOrder = async (req, res) => {
     }
 
     await connection.commit();
+    connection.release();
 
     // Ambil data order lengkap untuk notif WA
     const orderData = {
@@ -130,6 +135,8 @@ exports.createOrder = async (req, res) => {
       data: { orderId, status: 'paid', totalAmount }
     });
   } catch (error) {
+    await connection.rollback();
+    connection.release();
     console.error('Error create order:', error);
     res.status(500).json({
       success: false,
