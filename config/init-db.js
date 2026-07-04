@@ -54,7 +54,7 @@ async function initDatabase() {
     await db.query('SET FOREIGN_KEY_CHECKS = 1;');
     console.log('✅ Inisialisasi database berhasil selesai!');
   } catch (error) {
-    console.error('❌ Terjadi kesalahan saat memeriksa/inisialisasi database:', error.message);
+    console.error('❌ Terjadi kesalahan saat memeriksa/inisialisasi database:', error);
   }
 }
 
