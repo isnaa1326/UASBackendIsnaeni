@@ -60,9 +60,13 @@ app.use((err, req, res, next) => {
 });
 
 // ==================== START ====================
-app.listen(PORT, () => {
-  console.log(`🚀 UrbanStore API berjalan di http://localhost:${PORT}`);
-  console.log(`📋 Environment: ${process.env.NODE_ENV || 'development'}`);
+const initDatabase = require('./config/init-db');
+
+initDatabase().then(() => {
+  app.listen(PORT, () => {
+    console.log(`🚀 UrbanStore API berjalan di http://localhost:${PORT}`);
+    console.log(`📋 Environment: ${process.env.NODE_ENV || 'development'}`);
+  });
 });
 
 module.exports = app;
